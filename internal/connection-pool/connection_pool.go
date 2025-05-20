@@ -3,6 +3,8 @@ package connectionpool
 import (
 	"errors"
 	"net/url"
+
+	"kan.com/round-robin-api/internal/config"
 )
 
 type connectionPool struct {
@@ -33,20 +35,21 @@ func (cp *connectionPool) GetConnection() (Connection, error) {
 		return nil, errors.New("no available connections")
 	}
 
-	startIndex := cp.currentIndex
+	if config.Get().OptimiseConnPool {
+		startIndex := cp.currentIndex
 
-	for i := 0; i < len(cp.connections); i++ {
-		index := (startIndex + i) % len(cp.connections)
+		for i := 0; i < len(cp.connections); i++ {
+			index := (startIndex + i) % len(cp.connections)
 
-		if cp.connections[index].health.isHealthy() {
-			cp.currentIndex = (index + 1) % len(cp.connections)
-			return &cp.connections[index], nil
-		} else {
-			cp.connections[index].health.decreasePenalty()
+			if cp.connections[index].health.isHealthy() {
+				cp.currentIndex = (index + 1) % len(cp.connections)
+				return &cp.connections[index], nil
+			} else {
+				cp.connections[index].health.decreasePenalty()
+			}
 		}
 	}
 
-	// If all conns unhealthy, just return the next one
 	index := cp.currentIndex
 	cp.currentIndex = (cp.currentIndex + 1) % len(cp.connections)
 	return &cp.connections[index], nil

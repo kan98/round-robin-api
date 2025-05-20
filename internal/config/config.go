@@ -44,3 +44,8 @@ func getPorts() []string {
 	}
 	return result
 }
+
+func Reset() {
+	once = sync.Once{}
+	config = nil
+}

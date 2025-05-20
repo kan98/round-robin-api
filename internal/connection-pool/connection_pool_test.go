@@ -3,6 +3,8 @@ package connectionpool
 import (
 	"net/url"
 	"testing"
+
+	"kan.com/round-robin-api/internal/config"
 )
 
 func TestNew(t *testing.T) {
@@ -63,7 +65,34 @@ func TestGetConnection(t *testing.T) {
 		}
 	})
 
-	t.Run("skips unhealthy connection", func(t *testing.T) {
+	t.Run("when not optimised, doesn't skip unhealthy connection", func(t *testing.T) {
+		config.Reset()
+		t.Setenv("optimiseConnPool", "false")
+
+		pool := &connectionPool{
+			connections: []connection{
+				{
+					url:    &url.URL{Scheme: "http", Host: "localhost:2222"},
+					health: health{penaltyLeftTimes: 0},
+				},
+				{
+					url:    &url.URL{Scheme: "http", Host: "localhost:3333"},
+					health: health{penaltyLeftTimes: 1},
+				},
+			},
+			currentIndex: 1,
+		}
+
+		conn, _ := pool.GetConnection()
+		if conn.GetUrl() != "http://localhost:3333" {
+			t.Error("Wrong connection")
+		}
+	})
+
+	t.Run("when optimised, skips unhealthy connection", func(t *testing.T) {
+		config.Reset()
+		t.Setenv("optimiseConnPool", "true")
+
 		pool := &connectionPool{
 			connections: []connection{
 				{
@@ -84,7 +113,7 @@ func TestGetConnection(t *testing.T) {
 		}
 	})
 
-	t.Run("all unlealthy cons, just round robins next one", func(t *testing.T) {
+	t.Run("when optimised and all unhealthy cons, just round robins next one", func(t *testing.T) {
 		pool := &connectionPool{
 			connections: []connection{
 				{

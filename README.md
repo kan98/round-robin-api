@@ -1,12 +1,41 @@
 # Kan's round robin load balancer
 
+This project is a simple Go stateless repo and contains 2 different APIs.
+- A simple api that will return whatever JSON string it is given. We will spin up 3 instances of this on bootup in different ports. It's meant for testing the behaviour of our load balancer.
+- A load balancer api that will round robin requests to the designated simple API ports
+
+## Design of the round robin connection pool
+
+I started out building a normal round robin api through all the different ports spun up in the simple api. Then I introduced a scoring system to ensure our connection pool favours higher performing connections than lower ones whilst continuing to follow the round robin nature of traffic distribution.
+
+The scoring system has the following characteristics:
+- The lower the score, the better the connection health
+- Will penalise connections with slower latency than the lastest system average
+- Will slightly favour connections with a faster latency than the latest system average
+- Will penalise connections responding with errors or a non successful response
+- Will slightly favour connections with no recent errors
+- Once the score is high enough to reach the penalty threshold, we will penalise the connection by blocking traffic to it for n times through the round robin. The number of times to block will depend how high the connection's score is above the threshold.
+
 ## How to run
 
-## Design
+Please ensure you have Go installed on your computer.
+
+### Running the APIs
+
+```go run cmd/load-balancer-api/main.go```
+
+```go run cmd/simple-api/main.go```
+
+### Testing
+
+```go test ./...```
 
 ## Testing guide
+- I hope to build a seeded integration test suite given more time. This means we'll use the seed number to randomise our simple api's error rate and latency. We can then modify our scoring systems on latency and error rate using the benchmark scores to find an optimal setting that works best for multiple scenarios.
 
-## Limitations
-- Add health check
-- Add seeded integration testing suite for benchmarking load balancer
-- Optimise connection pool scoring and thresholds based on benchmarking
+With changes in the number of instances and our api behaviour, we'll see the optimal configuration differ so it's good to benchmark different scenarios.
+
+## Room for improvement had I had more time
+- I want to add health check endpoints on the simple API. We can continuously monitor for 200 status and a low latency response. We can use background threads to periodically call health check and use it in our connection's score calculation.
+- Add a seeded simulation in the simple api for benchmarking load balancer. The ability to use seeds to randomise the simple api's behaviour so we can benchmark our simple api's behaviour on differennt connection healths.
+- Build an integration test suite and use it to optimise our connection pools performance by fine tuning the scoring thresholds. We can test different scenarios and behaviours to improve our scoring algorithm.

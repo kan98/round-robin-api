@@ -1,17 +1,22 @@
 package connectionpool
 
 import (
+	"errors"
 	"net/http"
 	"time"
 )
 
 type MockConnectionPool struct {
+	GetConnectionToReturnErr bool
 }
 
 type MockConnection struct {
 }
 
 func (m *MockConnectionPool) GetConnection() (Connection, error) {
+	if m.GetConnectionToReturnErr {
+		return nil, errors.New("error")
+	}
 	return &MockConnection{}, nil
 }
 
