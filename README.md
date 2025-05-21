@@ -2,7 +2,7 @@
 
 This project is a simple Go stateless repo and contains 2 different APIs.
 - A simple api that will return whatever JSON string it is given. We will spin up 3 instances of this on bootup in different ports. It's meant for testing the behaviour of our load balancer. If you use a seed that's not 0, we will use a fixed random behaviour to simulate the error and latency of the different intances. We can use these fixed random behaviours in our benchmarks to test out our scoring algorithm and optimise it be a more performant load balancer.
-- A load balancer api that will round robin requests to the designated simple API ports
+- A load balancer api that will round robin requests to the designated simple API ports. The round robin API will use a scoring system to penalise slow and error prone connections, this is described further in the section below.
 
 ## Design of the round robin connection pool
 
@@ -31,6 +31,8 @@ Please ensure you have Go installed on your computer.
 ```go test ./...```
 
 ### Benchmarking
+
+Ensure you're running the 2 APIs first.
 
 ```go run testing/benchmark.go```
 
