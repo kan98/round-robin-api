@@ -30,11 +30,16 @@ Please ensure you have Go installed on your computer.
 
 ```go test ./...```
 
-## Testing guide
-- I hope to build a seeded integration test suite given more time. This means we'll use the seed number to randomise our simple api's error rate and latency. We can then modify our scoring systems on latency and error rate using the benchmark scores to find an optimal setting that works best for multiple scenarios.
+### Benchmarking
 
-With changes in the number of instances and our api behaviour, we'll see the optimal configuration differ so it's good to benchmark different scenarios.
+```go run testing/benchmark.go```
+
+## Benchmarking guide
+
+I built a benchmarking script in Go to test a certain number of requests using a defined number of workers. We need to spin up the simple api and the load balancer api with a seeded number then run benchmark file to call against our load balancer api.
+
+We should test with various seeded numbers (different error and latency simulations) and different instance numbers to find the optimised settings for our scoring system.
 
 ## Room for improvement had I had more time
 - I want to add health check endpoints on the simple API. We can continuously monitor for 200 status and a low latency response. We can use background threads to periodically call health check and use it in our connection's score calculation.
-- Build an integration test suite and use it to optimise our connection pools performance by fine tuning the scoring thresholds. We can test different scenarios and behaviours to improve our scoring algorithm.
+- Improve the simulator so instances can fail or improve over time. Currently the simulator can only simulate the same behaviour of an instance over time. This is not realistic as our connections can become faster or slower and start throwing errors at anytime in real life.
