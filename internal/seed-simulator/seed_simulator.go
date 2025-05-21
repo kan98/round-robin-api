@@ -7,24 +7,19 @@ import (
 )
 
 type Seed struct {
+	seedNo             int64
 	ProbabilityToErr   float64
 	AverageSleepSpeed  int
 	ProbabilityOfSleep float64
 }
 
-var seedNo int64 = -1
-
-func New() *Seed {
-	if seedNo == -1 {
-		seedNo = config.Get().ApiSimulatorSeed
-	} else {
-		seedNo++
-	}
-
-	if seedNo == 0 {
+func New(index int) *Seed {
+	seedCfg := config.Get().ApiSimulatorSeed
+	if seedCfg == 0 {
 		return nil
 	}
 
+	seedNo := seedCfg + int64(index)
 	r := rand.New(rand.NewSource(seedNo))
 
 	// Randomise err rate between 0 and 0.5
@@ -40,6 +35,7 @@ func New() *Seed {
 		ProbabilityToErr:   probabilityToErr,
 		AverageSleepSpeed:  averageSleepSpeed,
 		ProbabilityOfSleep: probabilityOfSleep,
+		seedNo:             seedNo,
 	}
 }
 

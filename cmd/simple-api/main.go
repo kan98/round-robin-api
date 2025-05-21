@@ -14,26 +14,25 @@ func main() {
 	var wg sync.WaitGroup
 	portsList := config.Get().ApiPorts
 
-	for _, port := range portsList {
+	for i, port := range portsList {
 		wg.Add(1)
-		currentPort := port
 
 		go func() {
 			defer wg.Done()
 
 			mux := http.NewServeMux()
 			mux.HandleFunc("POST /", func(w http.ResponseWriter, r *http.Request) {
-				simpleapi.PostRoot(w, r, seedsimulator.New())
+				simpleapi.PostRoot(w, r, seedsimulator.New(i))
 			})
 
-			log.Printf("Starting server on %s\n", currentPort)
+			log.Printf("Starting server on %s\n", port)
 			server := &http.Server{
-				Addr:    currentPort,
+				Addr:    port,
 				Handler: mux,
 			}
 
 			if err := server.ListenAndServe(); err != nil {
-				log.Fatalf("Error on port %s with error: %s\n", currentPort, err)
+				log.Fatalf("Error on port %s with error: %s\n", port, err)
 			}
 		}()
 	}

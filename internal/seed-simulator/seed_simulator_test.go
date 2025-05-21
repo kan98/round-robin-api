@@ -8,11 +8,10 @@ import (
 
 func TestNew(t *testing.T) {
 	t.Run("seed is valid", func(t *testing.T) {
-		seedNo = -1
 		t.Setenv("apiSimulatorSeed", "12345")
 		config.Reset()
 
-		seed := New()
+		seed := New(0)
 		if seed == nil {
 			t.Error("seed should not be nil")
 		} else {
@@ -28,26 +27,24 @@ func TestNew(t *testing.T) {
 		}
 	})
 	t.Run("second seed in runtime is incremented", func(t *testing.T) {
-		seedNo = -1
 		t.Setenv("apiSimulatorSeed", "12345")
 		config.Reset()
 
-		New()
-		if seedNo != 12345 {
-			t.Errorf("seedNo should be 12345 but is %d", seedNo)
+		seed1 := New(0)
+		if seed1.seedNo != 12345 {
+			t.Errorf("seedNo should be 12345 but is %d", seed1.seedNo)
 		}
 
-		New()
-		if seedNo != 12346 {
-			t.Errorf("seedNo should be 12346 but is %d", seedNo)
+		seed2 := New(1)
+		if seed2.seedNo != 12346 {
+			t.Errorf("seedNo should be 12346 but is %d", seed2.seedNo)
 		}
 	})
 	t.Run("seed is 0", func(t *testing.T) {
-		seedNo = -1
 		t.Setenv("apiSimulatorSeed", "0")
 		config.Reset()
 
-		seed := New()
+		seed := New(0)
 		if seed != nil {
 			t.Error("seed should be nil")
 		}
@@ -56,17 +53,15 @@ func TestNew(t *testing.T) {
 
 func TestToError(t *testing.T) {
 	t.Run("seed is nil", func(t *testing.T) {
-		seedNo = -1
 		t.Setenv("apiSimulatorSeed", "0")
 		config.Reset()
 
-		seed := New()
+		seed := New(0)
 		if seed.ToError() {
 			t.Error("should return false for nil seed")
 		}
 	})
 	t.Run("seed is valid", func(t *testing.T) {
-		seedNo = -1
 		seed := Seed{ProbabilityToErr: 1}
 
 		if !seed.ToError() {
@@ -76,17 +71,15 @@ func TestToError(t *testing.T) {
 }
 func TestSleepTime(t *testing.T) {
 	t.Run("seed is nil", func(t *testing.T) {
-		seedNo = -1
 		t.Setenv("apiSimulatorSeed", "0")
 		config.Reset()
 
-		seed := New()
+		seed := New(0)
 		if seed.SleepTime() != 0 {
 			t.Error("should return 0 for nil seed")
 		}
 	})
 	t.Run("seed is valid", func(t *testing.T) {
-		seedNo = -1
 		seed := Seed{AverageSleepSpeed: 100, ProbabilityOfSleep: 1}
 
 		if seed.SleepTime() != 100 {
