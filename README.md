@@ -1,7 +1,7 @@
 # Kan's round robin load balancer
 
 This project is a simple Go stateless repo and contains 2 different APIs.
-- A simple api that will return whatever JSON string it is given. We will spin up 3 instances of this on bootup in different ports. It's meant for testing the behaviour of our load balancer.
+- A simple api that will return whatever JSON string it is given. We will spin up 3 instances of this on bootup in different ports. It's meant for testing the behaviour of our load balancer. If you use a seed that's not 0, we will use a fixed random behaviour to simulate the error and latency of the different intances. We can use these fixed random behaviours in our benchmarks to test out our scoring algorithm and optimise it be a more performant load balancer.
 - A load balancer api that will round robin requests to the designated simple API ports
 
 ## Design of the round robin connection pool
@@ -37,5 +37,4 @@ With changes in the number of instances and our api behaviour, we'll see the opt
 
 ## Room for improvement had I had more time
 - I want to add health check endpoints on the simple API. We can continuously monitor for 200 status and a low latency response. We can use background threads to periodically call health check and use it in our connection's score calculation.
-- Add a seeded simulation in the simple api for benchmarking load balancer. The ability to use seeds to randomise the simple api's behaviour so we can benchmark our simple api's behaviour on differennt connection healths.
 - Build an integration test suite and use it to optimise our connection pools performance by fine tuning the scoring thresholds. We can test different scenarios and behaviours to improve our scoring algorithm.

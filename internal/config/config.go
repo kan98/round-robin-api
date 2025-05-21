@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -15,6 +16,7 @@ type Config struct {
 	ApiPorts         []string
 	LoadBalancerPort string
 	OptimiseConnPool bool
+	ApiSimulatorSeed int64
 }
 
 func Get() *Config {
@@ -25,6 +27,7 @@ func Get() *Config {
 			ApiPorts:         getPorts(),
 			LoadBalancerPort: os.Getenv("loadBalancerPort"),
 			OptimiseConnPool: os.Getenv("optimiseConnPool") == "true",
+			ApiSimulatorSeed: getApiSimulatorSeed(),
 		}
 	})
 
@@ -43,6 +46,19 @@ func getPorts() []string {
 		}
 	}
 	return result
+}
+
+func getApiSimulatorSeed() int64 {
+	seed := os.Getenv("apiSimulatorSeed")
+	if seed == "" {
+		return 0
+	}
+
+	seedInt, err := strconv.ParseInt(seed, 10, 64)
+	if err != nil {
+		return 0
+	}
+	return seedInt
 }
 
 func Reset() {

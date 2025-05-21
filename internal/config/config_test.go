@@ -11,6 +11,7 @@ func TestConfig(t *testing.T) {
 		t.Setenv("apiPorts", "2222,3333,4444")
 		t.Setenv("loadBalancerPort", "8083")
 		t.Setenv("optimiseConnPool", "true")
+		t.Setenv("apiSimulatorSeed", "123")
 
 		config := Get()
 
@@ -25,6 +26,10 @@ func TestConfig(t *testing.T) {
 		if !config.OptimiseConnPool {
 			t.Error("incorrect optimiseConnPool value")
 		}
+
+		if config.ApiSimulatorSeed != 123 {
+			t.Error("incorrect apiSimulatorSeed value")
+		}
 	})
 
 	t.Run("Empty env variables", func(t *testing.T) {
@@ -32,6 +37,7 @@ func TestConfig(t *testing.T) {
 		t.Setenv("apiPorts", "")
 		t.Setenv("loadBalancerPort", "")
 		t.Setenv("optimiseConnPool", "")
+		t.Setenv("apiSimulatorSeed", "")
 
 		config := Get()
 
@@ -45,6 +51,21 @@ func TestConfig(t *testing.T) {
 
 		if config.OptimiseConnPool {
 			t.Error("incorrect optimiseConnPool value")
+		}
+
+		if config.ApiSimulatorSeed != 0 {
+			t.Error("incorrect apiSimulatorSeed value")
+		}
+	})
+
+	t.Run("apiSimulatorSeed returns 0 for non number value", func(t *testing.T) {
+		Reset()
+		t.Setenv("apiSimulatorSeed", "abc")
+
+		config := Get()
+
+		if config.ApiSimulatorSeed != 0 {
+			t.Error("incorrect apiSimulatorSeed value")
 		}
 	})
 
