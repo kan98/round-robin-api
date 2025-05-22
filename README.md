@@ -42,6 +42,6 @@ I built a benchmarking script in Go to test a certain number of requests using a
 
 We should test with various seeded numbers (different error and latency simulations) and different instance numbers to find the optimised settings for our scoring system.
 
-## Room for improvement had I had more time
+## Room for improvement
 - I want to add health check endpoints on the simple API. We can continuously monitor for 200 status and a low latency response. We can use background threads to periodically call health check and use it in our connection's score calculation.
 - Improve the simulator so instances can fail or improve over time. Currently the simulator can only simulate the same behaviour of an instance over time. This is not realistic as our connections can become faster or slower and start throwing errors at anytime in real life.
